@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Idle Startup Pro - Noxera</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 15px 20px;
+    text-align: center;
+    background: #222244;
+    font-size: 1.6rem;
+    font-weight: bold;
+    user-select: none;
+  }
+  main {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Onglets - affichage */
+  section {
+    display: none;
+  }
+  section.active {
+    display: block;
+  }
+
+  /* Table marché */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border-bottom: 1px solid #444;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background: #222244;
+  }
+  button {
+    background: #61dafb;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #121212;
+  }
+  button:disabled {
+    background: #444;
+    cursor: not-allowed;
+  }
+
+  /* Carte bancaire */
+  #card {
+    width: 320px;
+    height: 200px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #3a3a3a, #121212);
+    box-shadow: 0 0 25px 3px #2196f3;
+    margin: 20px auto 40px auto;
+    position: relative;
+    color: #eee;
+    font-weight: bold;
+    padding: 20px;
+    box-sizing: border-box;
+    user-select: none;
+  }
+  #card .level {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  #card .number {
+    margin-top: 50px;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+  }
+  #card .owner {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-size: 1rem;
+    font-weight: normal;
+    color: #ccc;
+  }
+
+  /* Cartes custom selon argent */
+  #card.standard {
+    background: linear-gradient(135deg, #3a3a3a, #121212);
+    box-shadow: 0 0 25px 3px #2196f3;
+  }
+  #card.gold {
+    background: linear-gradient(135deg, #b08b2f, #7f6a1d);
+    box-shadow: 0 0 25px 3px #ffd700;
+    color: #2a1a00;
+  }
+  #card.diamond {
+    background: linear-gradient(135deg, #9fe2f6, #3db4c2);
+    box-shadow: 0 0 25px 3px #00bfff;
+    color: #022f3a;
+  }
+  #card.obsidian {
+    background: linear-gradient(135deg, #1a1a1a, #000000);
+    box-shadow: 0 0 30px 5px #6600cc;
+    color: #d2aaff;
+  }
+  #card.carton {
+    background: repeating-linear-gradient(
+      45deg,
+      #bfa46f,
+      #bfa46f 10px,
+      #d4c57a 10px,
+      #d4c57a 20px
+    );
+    box-shadow: none;
+    color: #3a2e00;
+  }
+  #card.mario {
+    background: url('https://upload.wikimedia.org/wikipedia/en/a/a9/MarioNSMBUDeluxe.png') no-repeat center/contain;
+    color: white;
+    text-shadow: 1px 1px 3px black;
+  }
+  #card.eau {
+    background: linear-gradient(135deg, #0077be, #005f8e);
+    box-shadow: 0 0 20px 4px #00aaff;
+    color: #d0f0ff;
+  }
+
+  /* Bottom navigation */
+  nav {
+    display: flex;
+    justify-content: space-around;
+    background: #222244;
+    padding: 10px 0;
+    user-select: none;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: #ddd;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+  }
+  nav button.active,
+  nav button:hover {
+    background-color: #61dafb;
+    color: #121212;
+  }
+
+  /* Paramètres form */
+  label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    outline: 2px solid #61dafb;
+  }
+  #reset-btn {
+    margin-top: 20px;
+    background: #ff4444;
+    color: white;
+  }
+  #reset-btn:hover {
+    background: #dd2222;
+  }
+
+  /* Click button Jouer */
+  #click-money-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 15px;
+    background: #61dafb;
+    color: #121212;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 0 15px 2px #61dafb;
+    transition: transform 0.1s;
+  }
+  #click-money-btn:active {
+    transform: scale(0.95);
+  }
+</style>
+</head>
+<body>
+
+<header>Idle Startup Pro - Noxera</header>
+
+<main>
+
+<!-- Section Marché -->
+<section id="market-section" class="active">
+  <div>Argent disponible : <span id="money-market">1000</span> $</div>
+
+  <table aria-label="Liste des actions et cryptos disponibles">
+    <thead>
+      <tr>
+        <th>Action / Crypto</th>
+        <th>Prix actuel</th>
+        <th>Possédé</th>
+        <th>Acheter</th>
+        <th>Vendre</th>
+      </tr>
+    </thead>
+    <tbody id="stocks-table-body"></tbody>
+  </table>
+</section>
+
+<!-- Section Jouer -->
+<section id="play-section">
+  <div id="money-display" style="text-align:center; font-size: 1.5rem; margin-bottom: 20px;">
+    Argent disponible : <span id="money-play">1000</span> $
+  </div>
+
+  <div id="card" class="carton" title="Carte bancaire virtuelle">
+    <div class="level">Carton</div>
+    <div class="number" id="card-number">1234 5678 9012 3456</div>
+    <div class="owner">Noxera Player</div>
+  </div>
+
+  <button id="click-money-btn" aria-label="Cliquez ici pour gagner de l'argent">Cliquer pour gagner 10 $</button>
+</section>
+
+<!-- Section Paramètres -->
+<section id="settings-section">
+  <h2>Paramètres</h2>
+
+  <div>
+    <strong>Créateur du jeu :</strong> Noxera<br />
+    <strong>Version :</strong> 1.0.0<br />
+    <strong>Carte actuelle :</strong> <span id="current-card-name">Carton</span>
+  </div>
+
+  <form id="settings-form">
+    <label for="card-number-input">Modifier numéro de carte :</label>
+    <input type="text" id="card-number-input" maxlength="19" placeholder="1234 5678 9012 3456" pattern="[\d ]*" />
+
+    <label for="code-input">Entrer un code :</label>
+    <input type="text" id="code-input" placeholder="Code promo ou secret" />
+
+    <button type="button" id="apply-code-btn" style="margin-top:10px;">Appliquer le code</button>
+
+    <button type="button" id="reset-btn">Réinitialiser la partie</button>
+  </form>
+</section>
+
+</main>
+
+<nav>
+  <button id="btn-market" class="active" aria-label="Marché">Marché</button>
+  <button id="btn-play" aria-label="Jouer">Jouer</button>
+  <button id="btn-settings" aria-label="Paramètres">Paramètres</button>
+</nav>
+
+<script>
+  // Variables globales
+  let money = 1000;
+  const stocks = [
+    { name: 'Bitcoin', symbol: 'BTC', price: 30000, owned: 0 },
+    { name: 'Ethereum', symbol: 'ETH', price: 2000, owned: 0 },
+    { name: 'Apple', symbol: 'AAPL', price: 150, owned: 0 },
+    { name: 'Tesla', symbol: 'TSLA', price: 650, owned: 0 },
+    { name: 'Dogecoin', symbol: 'DOGE', price: 0.25, owned: 0 },
+  ];
+
+  // Cartes selon argent
+  const cardLevels = [
+    { name: 'Carton', minMoney: 0, className: 'carton' },
+    { name: 'Eau', minMoney: 5000, className: 'eau' },
+    { name: 'Gold', minMoney: 20000, className: 'gold' },
+    { name: 'Diamond', minMoney: 100000, className: 'diamond' },
+    { name: 'Obsidian', minMoney: 500000, className: 'obsidian' },
+    { name: 'Mario', minMoney: 1000000, className: 'mario' },
+  ];
+
+  // DOM Elements
+  const moneyMarketSpan = document.getElementById('money-market');
+  const moneyPlaySpan = document.getElementById('money-play');
+  const stocksTableBody = document.getElementById('stocks-table-body');
+  const cardDiv = document.getElementById('card');
+  const cardNumberDiv = document.getElementById('card-number');
+  const currentCardNameSpan = document.getElementById('current-card-name');
+  const clickMoneyBtn = document.getElementById('click-money-btn');
+  const cardNumberInput = document.getElementById('card-number-input');
+  const codeInput = document.getElementById('code-input');
+  const applyCodeBtn = document.getElementById('apply-code-btn');
+  const resetBtn = document.getElementById('reset-btn');
+
+  // Navigation boutons et sections
+  const btnMarket = document.getElementById('btn-market');
+  const btnPlay = document.getElementById('btn-play');
+  const btnSettings = document.getElementById('btn-settings');
+  const marketSection = document.getElementById('market-section');
+  const playSection = document.getElementById('play-section');
+  const settingsSection = document.getElementById('settings-section');
+
+  // Sauvegarde et chargement localStorage
+  function saveGame() {
+    localStorage.setItem('idle-money', money);
+    localStorage.setItem('idle-stocks', JSON.stringify(stocks));
+    localStorage.setItem('idle-cardNumber', cardNumberInput.value);
+  }
+
+  function loadGame() {
+    const savedMoney = localStorage.getItem('idle-money');
+    const savedStocks = localStorage.getItem('idle-stocks');
+    const savedCardNumber = localStorage.getItem('idle-cardNumber');
+    if (savedMoney) money = parseFloat(savedMoney);
+    if (savedStocks) {
+      const parsed = JSON.parse(savedStocks);
+      for (let i = 0; i < stocks.length; i++) {
+        if (parsed[i]) stocks[i].owned = parsed[i].owned || 0;
+      }
+    }
+    if (savedCardNumber) cardNumberInput.value = savedCardNumber;
+  }
+
+  // Met à jour affichage de l'argent partout
+  function updateMoneyDisplay() {
+    moneyMarketSpan.textContent = money.toFixed(2);
+    moneyPlaySpan.textContent = money.toFixed(2);
+  }
+
+  // Mise à jour tableau marché
+  function updateStocksTable() {
+    stocksTableBody.innerHTML = '';
+    stocks.forEach((stock, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${stock.name} (${stock.symbol})</td>
+        <td>${stock.price.toFixed(2)} $</td>
+        <td>${stock.owned}</td>
+        <td><button ${money < stock.price ? 'disabled' : ''} data-buy="${index}">Acheter</button></td>
+        <td><button ${stock.owned === 0 ? 'disabled' : ''} data-sell="${index}">Vendre</button></td>
+      `;
+      stocksTableBody.appendChild(tr);
+    });
+  }
+
+  // Met à jour la carte selon l'argent
+  function updateCard() {
+    let cardLevel = cardLevels[0];
+    for (const level of cardLevels) {
+      if (money >= level.minMoney) cardLevel = level;
+    }
+    cardDiv.className = '';
+    cardDiv.classList.add(cardLevel.className);
+    cardDiv.querySelector('.level').textContent = cardLevel.name;
+    currentCardNameSpan.textContent = cardLevel.name;
+
+    // Si Mario, on adapte le style et numéro visible
+    if(cardLevel.name === 'Mario'){
+      cardNumberDiv.style.color = 'white';
+      cardNumberDiv.style.textShadow = '1px 1px 3px black';
+    } else {
+      cardNumberDiv.style.color = '';
+      cardNumberDiv.style.textShadow = '';
+    }
+  }
+
+  // Change numéro de carte affiché et sauvegarde
+  cardNumberInput.addEventListener('input', () => {
+    let val = cardNumberInput.value.replace(/[^\d ]/g, '').slice(0,19);
+    cardNumberInput.value = val;
+    cardNumberDiv.textContent = val || '1234 5678 9012 3456';
+    saveGame();
+  });
+
+  // Fonction pour modifier prix des actions toutes les secondes (simulé)
+  function fluctuatePrices() {
+    // On bloque fluctuation les week-ends (samedi/dimanche)
+    const now = new Date();
+    const day = now.getDay();
+    if (day === 0 || day === 6) return; // Week-end, pas de changement
+
+    stocks.forEach(stock => {
+      // Fluctuation aléatoire + ou -
+      let changePercent = (Math.random() * 0.04) - 0.02; // entre -2% et +2%
+      stock.price += stock.price * changePercent;
+      if (stock.price < 0.01) stock.price = 0.01;
+    });
+  }
+
+  // Acheter action
+  stocksTableBody.addEventListener('click', e => {
+    if (e.target.dataset.buy !== undefined) {
+      const i = parseInt(e.target.dataset.buy);
+      const stock = stocks[i];
+      if (money >= stock.price) {
+        money -= stock.price;
+        stock.owned++;
+        updateMoneyDisplay();
+        updateStocksTable();
+        saveGame();
+        updateCard();
+      }
+    } else if (e.target.dataset.sell !== undefined) {
+      const i = parseInt(e.target.dataset.sell);
+      const stock = stocks[i];
+      if (stock.owned > 0) {
+        stock.owned--;
+        money += stock.price;
+        updateMoneyDisplay();
+        updateStocksTable();
+        saveGame();
+        updateCard();
+      }
+    }
+  });
+
+  // Clicker pour gagner de l'argent
+  clickMoneyBtn.addEventListener('click', () => {
+    money += 10;
+    updateMoneyDisplay();
+    updateCard();
+    saveGame();
+  });
+
+  // Appliquer un code simple
+  applyCodeBtn.addEventListener('click', () => {
+    const code = codeInput.value.trim().toLowerCase();
+    if (code === 'boost') {
+      money += 1000;
+      alert('Code BOOST activé : +1000$');
+    } else if (code === 'supercard') {
+      money = 1000000;
+      alert('Code SUPERCARD activé : Carte Mario débloquée !');
+    } else {
+      alert('Code invalide');
+    }
+    updateMoneyDisplay();
+    updateCard();
+    saveGame();
+  });
+
+  // Réinitialiser partie
+  resetBtn.addEventListener('click', () => {
+    if (confirm('Voulez-vous vraiment réinitialiser la partie ? Toute progression sera perdue.')) {
+      money = 1000;
+      stocks.forEach(s => s.owned = 0);
+      cardNumberInput.value = '1234 5678 9012 3456';
+      cardNumberDiv.textContent = cardNumberInput.value;
+      codeInput.value = '';
+      updateMoneyDisplay();
+      updateStocksTable();
+      updateCard();
+      saveGame();
+    }
+  });
+
+  // Navigation onglets
+  function setActiveSection(section) {
+    marketSection.classList.remove('active');
+    playSection.classList.remove('active');
+    settingsSection.classList.remove('active');
+    btnMarket.classList.remove('active');
+    btnPlay.classList.remove('active');
+    btnSettings.classList.remove('active');
+
+    if (section === 'market') {
+      marketSection.classList.add('active');
+      btnMarket.classList.add('active');
+    } else if (section === 'play') {
+      playSection.classList.add('active');
+      btnPlay.classList.add('active');
+    } else if (section === 'settings') {
+      settingsSection.classList.add('active');
+      btnSettings.classList.add('active');
+    }
+  }
+
+  btnMarket.addEventListener('click', () => setActiveSection('market'));
+  btnPlay.addEventListener('click', () => setActiveSection('play'));
+  btnSettings.addEventListener('click', () => setActiveSection('settings'));
+
+  // Initialisation
+  function init() {
+    loadGame();
+    updateMoneyDisplay();
+    updateStocksTable();
+    updateCard();
+
+    // Initial display numéro carte
+    cardNumberDiv.textContent = cardNumberInput.value || '1234 5678 9012 3456';
+
+    // Mise à jour des prix toutes les secondes (hors week-end)
+    setInterval(() => {
+      fluctuatePrices();
+      updateStocksTable();
+    }, 1000);
+  }
+
+  init();
+</script>
+
+</body>
+</html>
